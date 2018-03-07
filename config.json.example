@@ -13,6 +13,10 @@
     },
 
     "user_id_format": "@telegram_{}:DOMAIN.TLD",
+    "default_displayname": "{} {} (Telegram)",
+    "displayname_args": "['first_name', 'last_name']",
+    "__possible_args" : "'first_name', 'last_name, 'username'",
+
     "db_url": "sqlite:///database.db",
 
     "hide_membership_changes": "True",

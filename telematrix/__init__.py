@@ -43,6 +43,8 @@ try:
         MATRIX_MEDIA_PREFIX = MATRIX_HOST + '_matrix/media/r0/'
 
         USER_ID_FORMAT = CONFIG['user_id_format']
+        DEFAULT_DISPLAYNAME = CONFIG['default_displayname']
+        DISPLAYNAME_ARGS = eval(CONFIG['displayname_args'])
         DATABASE_URL = CONFIG['db_url']
         HIDE_MEMBERSHIP_CHANGES = CONFIG['hide_membership_changes']
 
@@ -477,6 +479,20 @@ async def upload_file_to_matrix(file_id, user_id, mime):
         return j['content_uri'], length
     else:
         return None, 0
+
+
+async def create_matrix_displayname(tg_user):
+    # Retrieve info
+    name_parts = []
+    for elt in DISPLAYNAME_ARGS:
+        try:
+            name_parts.append(tg_user[elt])
+        except KeyError:
+            name_parts.append("")
+    name = DEFAULT_DISPLAYNAME.format(*name_parts)
+    name = re.sub(' +', ' ', name)  # Remove multiple whitespace that may appears, for
+    # example when 'last_name' is not defined in certain default configuration
+    return name
 
 
 async def register_join_matrix(chat, room_id, user_id):
