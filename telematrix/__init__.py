@@ -481,7 +481,7 @@ async def upload_file_to_matrix(file_id, user_id, mime):
         return None, 0
 
 
-async def create_matrix_displayname(tg_user):
+def create_matrix_displayname(tg_user):
     # Retrieve info
     name_parts = []
     for elt in DISPLAYNAME_ARGS:
@@ -496,10 +496,7 @@ async def create_matrix_displayname(tg_user):
 
 
 async def register_join_matrix(chat, room_id, user_id):
-    name = chat.sender['first_name']
-    if 'last_name' in chat.sender:
-        name += ' ' + chat.sender['last_name']
-    name += ' (Telegram)'
+    name = create_matrix_displayname(chat.sender)
     user = user_id.split(':')[0][1:]
 
     await matrix_post('client', 'register', None,
@@ -520,10 +517,7 @@ async def register_join_matrix(chat, room_id, user_id):
 
 
 async def update_matrix_displayname_avatar(tg_user):
-    name = tg_user['first_name']
-    if 'last_name' in tg_user:
-        name += ' ' + tg_user['last_name']
-    name += ' (Telegram)'
+    name = create_matrix_displayname(tg_user)
     user_id = USER_ID_FORMAT.format(tg_user['id'])
     
     db_user = db.session.query(db.TgUser).filter_by(tg_id=tg_user['id']).first()
