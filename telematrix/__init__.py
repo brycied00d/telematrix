@@ -250,11 +250,11 @@ async def matrix_transaction(request):
 
                         # Append the correct extension if it's missing or wrong
                         try:
-                            exts = MT.types_map_inv[content['info']['mimetype']]
+                            exts = MT.types_map_inv[1][content['info']['mimetype']]
+                            if not content['body'].endswith(tuple(exts)):
+                                content['body'] += '.' + exts[0]
                         except KeyError:
-                            exts = ""
-                        if not content['body'].endswith(tuple(exts)):
-                            content['body'] += '.' + exts[0]
+                            pass
 
                         # Download the file
                         await download_matrix_file(url, content['body'])
@@ -848,8 +848,7 @@ def main():
     """
     Main function to get the entire ball rolling.
     """
-    logging.basicConfig(level=logging.DEBUG)  # should be set to WARNING when debug is no
-    # more necessary
+    logging.basicConfig(level=logging.WARNING)
     db.initialize(DATABASE_URL)
 
     loop = asyncio.get_event_loop()
