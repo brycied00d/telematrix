@@ -13,6 +13,7 @@ from time import time
 from urllib.parse import unquote, quote, urlparse, parse_qs
 from io import BytesIO
 import re
+from PIL import Image
 
 from PIL import Image
 from aiohttp import web, ClientSession
@@ -597,9 +598,20 @@ async def aiotg_sticker(chat, sticker):
 
     file_id = sticker['file_id']
     uri, length = await upload_tgfile_to_matrix(file_id, user_id, 'image/png', 'PNG')
-
-    info = {'mimetype': 'image/png', 'size': length, 'h': sticker['height'],
-            'w': sticker['width']}
+    try:
+        thumb = sticker['thumb']
+        thumb_file_id = thumb['file_id']
+        thumb_uri, thumb_length = await upload_tgfile_to_matrix(thumb_file_id, user_id, 'image/png', 'PNG')
+    except KeyError:
+        pass
+    if thumb:
+        thumbnail_info ={'mimetype': 'image/png', 'size': thumb_length, 'h': thumb['height'],
+                         'w': thumb['width']}
+        info = {'mimetype': 'image/png', 'size': length, 'h': sticker['height'],
+                'w': sticker['width'], 'thumbnail_uri': thumb_uri, 'thumbnail_info': thumbnail_info}
+    else:
+        info = {'mimetype': 'image/png', 'size': length, 'h': sticker['height'],
+                'w': sticker['width']}
     body = 'Sticker_{}.png'.format(int(time() * 1000))
 
     if uri:
